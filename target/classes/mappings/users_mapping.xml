@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 xml을 구분하기 위한 구분자 -->
+<mapper namespace="UsersDAO">
+
+	<resultMap type="users" id="usersResult">
+		<id property="id" column="ID"/>
+		<result property="password" column="PASSWORD"/>
+		<result property="name" column="NAME"/>
+		<result property="role" column="ROLE"/>
+	</resultMap>
+
+	<!-- 각각의 작업을 수행하는 SQL과 ID -->
+ 
+	<!-- 삽입 -->
+	<insert id="insert" parameterType="com.javalec.board.vo.UsersVO">
+		INSERT INTO USERS VALUES(#{id}, #{password}, #{name} ,#{role})
+	</insert>
+	
+	<!-- 수정 -->
+	<update id="update" parameterType="com.javalec.board.vo.UsersVO">
+		UPDATE USERS SET PASSWORD = #{password}, NAME = #{name}, ROLE = #{role} WHERE ID = #{id}
+	</update>
+
+	<!-- 삭제 -->
+	<delete id="delete">
+		DELETE FROM USERS WHERE ID = #{id}
+	</delete>
+
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultMap="usersResult">
+		SELECT ID, PASSWORD, NAME, ROLE
+		FROM USERS ORDER BY NAME
+	</select>
+	
+	<!-- 단건 조회 -->
+	<select id="selectOne" resultMap="usersResult">
+		SELECT ID, PASSWORD, NAME, ROLE 
+		FROM USERS WHERE ID = #{id}
+	</select>
+	
+</mapper>

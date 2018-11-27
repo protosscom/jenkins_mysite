@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 xml을 구분하기 위한 구분자 -->
+<mapper namespace="GuestBookDAO">
+
+	<resultMap type="guestbook" id="guestbookResult">
+		<id property="no" column="no"/>
+		<result property="name" column="name"/>
+		<result property="content" column="content"/>
+		<result property="password" column="password"/>
+		<result property="reg_date" column="regdate"/>
+	</resultMap>
+
+	<!-- 각각의 작업을 수행하는 SQL과 ID -->
+ 
+	<!-- 삽입 -->
+	<insert id="insert" parameterType="guestbook">
+		INSERT INTO GUESTBOOK VALUES(#{no}, #{name}, #{password} ,#{content}, SYSDATE)
+	</insert>
+	
+	<!-- 수정 -->
+	<update id="update" parameterType="guestbook">
+		UPDATE GUESTBOOK SET NAME = #{name}, PASSWORD = #{password}, CONTENT = #{content} WHERE NO = #{no}
+	</update>
+
+	<!-- 삭제 -->
+	<delete id="delete" parameterType="int">
+		DELETE FROM GUESTBOOK WHERE NO = #{no}
+	</delete>
+
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultMap="guestbookResult">
+		SELECT NO, NAME, CONTENT, PASSWORD, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') regdate 
+		FROM GUESTBOOK ORDER BY NO
+	</select>
+	
+	<!-- 단건 조회 -->
+	<select id="selectOne" resultMap="guestbookResult">
+		SELECT NO, NAME, CONTENT, PASSWORD, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') regdate 
+		FROM GUESTBOOK WHERE NO = #{no}
+	</select>
+	
+	<!-- 이름 검색 --> 
+	<select id="selectSearchName" resultMap="guestbookResult">
+		SELECT NO, NAME, CONTENT, PASSWORD, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') regdate 
+		FROM GUESTBOOK WHERE UPPER(NAME) LIKE UPPER(#{keyword}) ORDER BY NO
+	</select>
+	 
+	<!-- 내용 검색 --> 
+	<select id="selectSearchContent" resultMap="guestbookResult">
+		SELECT NO, NAME, CONTENT, PASSWORD, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') regdate 
+		FROM GUESTBOOK WHERE UPPER(CONTENT) LIKE UPPER(#{keyword}) ORDER BY NO
+	</select>
+	
+</mapper>

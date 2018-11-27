@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 xml을 구분하기 위한 구분자 -->
+<mapper namespace="BoardDAO">
+
+	<resultMap type="board" id="boardResult">
+		<id property="seq" column="SEQ"/>
+		<result property="title" column="TITLE"/>
+		<result property="writer" column="WRITER"/>
+		<result property="content" column="CONTENT"/>
+		<result property="reg_date" column="RD"/>
+		<result property="cnt" column="CNT"/>
+		<result property="id" column="ID"/>
+		<result property="fileURL" column="UPLOAD_FILE"/>
+	</resultMap>
+
+	<!-- 각각의 작업을 수행하는 SQL과 ID -->
+ 
+	<!-- 삽입 -->
+	<insert id="insert" parameterType="com.javalec.board.vo.BoardVO">
+		INSERT INTO BOARD VALUES(BOARD_SEQ.NEXTVAL, #{title}, #{writer} ,#{content}, SYSDATE, 0, #{id}, #{fileURL})
+	</insert>
+	
+	<!-- 수정 -->
+	<update id="update" parameterType="com.javalec.board.vo.BoardVO">
+		UPDATE BOARD SET TITLE = #{title}, CONTENT = #{content}, UPLOAD_FILE = #{fileURL} WHERE SEQ = #{seq}
+	</update>
+
+	<!-- 삭제 -->
+	<delete id="delete">
+		DELETE FROM BOARD WHERE SEQ = #{seq}
+	</delete>
+
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultMap="boardResult">
+		SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, ID, UPLOAD_FILE
+		FROM BOARD ORDER BY SEQ DESC
+	</select>
+	
+	<!-- 전체 조회 페이징 -->
+	<select id="getBoardList" resultMap="boardResult" parameterType="int">
+		<![CDATA[SELECT * FROM ( SELECT SEQ, TITLE, WRITER, CONTENT, RD, CNT, UPLOAD_FILE, ROWNUM AS RN FROM 
+		(SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, UPLOAD_FILE 
+		FROM BOARD ORDER BY SEQ DESC))
+		WHERE (#{page}-1)*#{size}+1 <= RN AND RN <= #{page} * #{size}]]>
+	</select>
+	
+	<!-- 단건 조회 -->
+	<select id="selectOne" resultMap="boardResult">
+		SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, ID, UPLOAD_FILE
+		FROM BOARD WHERE SEQ = #{seq}
+	</select>
+	
+	<!-- 조회수 증가 -->
+	<update id="updateCnt">
+		UPDATE BOARD SET CNT = CNT+1 WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 이름 검색 --> 
+	<select id="selectSearchTitle" resultMap="boardResult">
+		SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, ID, UPLOAD_FILE
+		FROM BOARD WHERE UPPER(TITLE) LIKE UPPER(#{keyword}) ORDER BY SEQ DESC
+	</select>
+	 
+	<!-- 내용 검색 --> 
+	<select id="selectSearchContent" resultMap="boardResult">
+		SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, ID, UPLOAD_FILE
+		FROM BOARD WHERE UPPER(CONTENT) LIKE UPPER(#{keyword}) ORDER BY SEQ DESC
+	</select>
+	
+	<!-- 타이틀 검색 페이징 -->
+	<select id="getBoardListTitle" parameterType="Map" resultMap="boardResult">
+		<![CDATA[SELECT * FROM ( SELECT SEQ, TITLE, WRITER, CONTENT, RD, CNT, UPLOAD_FILE, ROWNUM AS RN FROM 
+		(SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, UPLOAD_FILE 
+		FROM BOARD WHERE TITLE LIKE #{keyword} ORDER BY SEQ DESC))
+		WHERE (#{page}-1)*#{size}+1 <= RN AND RN <= #{page} * #{size}]]>
+	</select>
+	
+	<!-- 내용 검색 페이징 -->
+	<select id="getBoardListContent" parameterType="Map" resultMap="boardResult">
+		<![CDATA[SELECT * FROM ( SELECT SEQ, TITLE, WRITER, CONTENT, RD, CNT, UPLOAD_FILE, ROWNUM AS RN FROM 
+		(SELECT SEQ, TITLE, WRITER, CONTENT, TO_CHAR(REG_DATE, 'YYYY-MM-DD HH24:MI') RD, CNT, UPLOAD_FILE 
+		FROM BOARD WHERE CONTENT LIKE #{keyword} ORDER BY SEQ DESC))
+		WHERE (#{page}-1)*#{size}+1 <= RN AND RN <= #{page} * #{size}]]>
+	</select>
+	
+	<!-- 전체 게시물 개수 -->
+	<select id="totalCount" resultType="int">
+		SELECT count(*) FROM BOARD
+	</select>
+	
+	<!-- 전체 게시물 개수 -->
+	<select id="totalCountTitle" parameterType="Map" resultType="int">
+		SELECT count(*) FROM BOARD WHERE TITLE LIKE #{keyword}
+	</select>
+	
+	<!-- 전체 게시물 개수 -->
+	<select id="totalCountContent" parameterType="Map" resultType="int">
+		SELECT count(*) FROM BOARD WHERE CONTENT LIKE #{keyword}
+	</select>
+	
+</mapper>
